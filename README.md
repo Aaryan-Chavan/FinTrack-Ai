@@ -12,42 +12,47 @@
 
 ---
 
-## 📸 System Interface & Core Capabilities
+## ✨ Core Capabilities
 
-### 1. Financial Treasury Dashboard
-Real-time ledger audit, cashflow variance, and monthly surplus telemetry. Features a dynamic running-balance wave chart and proportionate category burn visualizations.
-![FinTrack Dashboard](Screenshot%202026-11-07%20152029.jpg)
+* **Financial Treasury Dashboard:** Real-time ledger audit, cashflow variance, and monthly surplus telemetry featuring dynamic running-balance wave charts.
+* **Node 402 Authentication:** Encrypted dual-factor authentication gateway capturing verified legal identities for institutional ledger governance.
+* **Ledger Synchronization:** Cryptographically verified transaction feeds allowing users to seamlessly inject credit and debit events into the primary database.
+* **Enterprise Salary Planner:** Algorithmic cash assignment based on the priority waterfall rule (Take-Home → Essentials → Debt → Emergency → Investments).
+* **Month Closure & Reconciliation:** Reconcile internal book surplus against physical core banking reserves to seal the ledger for the fiscal month.
+* **Autonomous Wealth Intelligence:** Context-aware AI copilot powered by Google Gemini that analyzes active records to output deterministic budget forecasts.
+* **Verified Financial Instruments:** Curated, regulated asset vehicles (FDs, PPF, Index Funds) evaluated against the user's active monthly surplus.
+* **Multi-Tenant Identity Management:** Comprehensive parameter controls, including dark/light mode toggling and secure session management.
 
-### 2. Node 402 Authentication & Registration
-Encrypted dual-factor authentication gateway capturing verified legal identities for institutional ledger governance.
+---
+
+## 📸 Application Gallery
+
+### Dashboard & Analytics
+<img src="ScreenShots/Screenshot 2026-11-07 152029.png" width="100%" alt="FinTrack Dashboard" />
+
+### Ledger & Budget Planning
 <p align="center">
-  <img src="Screenshot%202026-11-07%20152423.png" width="48%" />
-  <img src="Screenshot%202026-11-07%20152442.jpg" width="48%" />
+  <img src="ScreenShots/Screenshot 2026-11-07 152111.png" width="49%" alt="Ledger Synchronization" />
+  <img src="ScreenShots/Screenshot 2026-11-07 152129.png" width="49%" alt="Enterprise Salary Planner" />
 </p>
 
-### 3. Ledger Synchronization & Verification
-Cryptographically verified transaction feeds allowing users to seamlessly inject credit and debit events into the primary database.
-![Transactions](Screenshot%202026-11-07%20152111.png)
+### AI Copilot & Reconciliation
+<p align="center">
+  <img src="ScreenShots/Screenshot 2026-11-07 152304.png" width="49%" alt="AI Copilot Intelligence" />
+  <img src="ScreenShots/Screenshot 2026-11-07 152226.png" width="49%" alt="Month Closure Reconciliation" />
+</p>
 
-### 4. Enterprise Salary Planner
-Algorithmic cash assignment based on the priority waterfall rule (Take-Home → Essentials → Debt → Emergency → Investments).
-![Salary Planner](Screenshot%202026-11-07%20152129.jpg)
+### Financial Instruments & Profile Settings
+<p align="center">
+  <img src="ScreenShots/Screenshot 2026-11-07 152325.png" width="49%" alt="Financial Instruments" />
+  <img src="ScreenShots/Screenshot 2026-11-07 152358.png" width="49%" alt="Profile Preferences" />
+</p>
 
-### 5. Month Closure & Reconciliation
-Reconcile internal book surplus against physical core banking reserves to seal the ledger for the fiscal month.
-![Month Closure](Screenshot%202026-11-07%20152226.jpg)
-
-### 6. Autonomous Wealth Intelligence (AI Copilot)
-Context-aware financial intelligence powered by Google Gemini. Analyzes active records to output deterministic budget forecasts and surplus distribution strategies.
-![AI Assistant](Screenshot%202026-11-07%20152304.jpg)
-
-### 7. Verified Financial Instruments
-Curated, regulated asset vehicles (FDs, PPF, Index Funds, SCSS) evaluated against the user's active monthly surplus for actionable investment routing.
-![Explore Products](Screenshot%202026-11-07%20152325.jpg)
-
-### 8. Identity & Application Preferences
-Multi-tenant ledger parameter controls, including dark/light mode toggling and session management.
-![Profile Settings](Screenshot%202026-11-07%20152358.jpg)
+### Secure Authentication Gateway
+<p align="center">
+  <img src="ScreenShots/Screenshot 2026-11-07 152423.png" width="49%" alt="Sign In Gateway" />
+  <img src="ScreenShots/Screenshot 2026-11-07 152442.png" width="49%" alt="Registration Gateway" />
+</p>
 
 ---
 
