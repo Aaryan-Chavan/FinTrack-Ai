@@ -411,13 +411,37 @@ async function loadAnalytics() {
             <span class="text-2xl font-bold text-on-surface">₹${expVal.toLocaleString('en-IN')}</span>
         `;
 
+        // Dynamically build arrays to include the Available Balance
+        let pieLabels = [];
+        let pieData = [];
+        let pieColors = [];
+
+        if (hasData) {
+            pieLabels = data.pie.map(x => x.category);
+            pieData = data.pie.map(x => parseFloat(x.total));
+            // Base colors for expense categories
+            pieColors = ['#4d8eff', '#03b5d3', '#8b5cf6', '#ffb4ab', '#f59e0b', '#dbe1ff']; 
+            
+            // Append Available Balance if the user is not in a deficit
+            if (balVal > 0) {
+                pieLabels.push('Available Balance');
+                pieData.push(balVal);
+                pieColors.push('#4edea3'); // Green color for positive surplus
+            }
+        } else {
+            // Fallback if no transactions exist yet
+            pieLabels = ['Available Balance', 'Expense'];
+            pieData = [balVal > 0 ? balVal : 0, expVal];
+            pieColors = ['#4edea3', '#ffb4ab'];
+        }
+
         pieChart1Instance = new Chart(pieCtx, {
             type: 'doughnut',
             data: {
-                labels: hasData ? data.pie.map(x => x.category) : ['Income', 'Expense'],
+                labels: pieLabels,
                 datasets: [{
-                    data: hasData ? data.pie.map(x => parseFloat(x.total)) : [incVal, expVal],
-                    backgroundColor: hasData ? ['#4d8eff', '#03b5d3', '#4edea3', '#8b5cf6', '#ffb4ab'] : ['#4edea3', '#ffb4ab'],
+                    data: pieData,
+                    backgroundColor: pieColors,
                     borderWidth: 2,
                     borderColor: isDark ? '#171e37' : '#ffffff',
                     hoverOffset: 4
@@ -448,42 +472,53 @@ async function loadAnalytics() {
         
         let waveLabels = [];
         let waveData = [];
+        let txAmounts = []; // Array to hold actual transaction amounts for the tooltip
         let pointRadii = [];
         let pointColors = [];
-        let isCredit = []; // Keep track of whether a point is income or expense
+        let isCredit = []; 
 
         if (txRes.res.ok && Array.isArray(txRes.data) && txRes.data.length > 0) {
             
             // 1. Sort chronologically (oldest to newest) 
-            // Secondary sort by ID ascending guarantees same-day transactions order correctly
             const sortedTx = txRes.data.slice().sort((a, b) => {
                 const dateDiff = new Date(a.date) - new Date(b.date);
                 if (dateDiff !== 0) return dateDiff;
-                return a.id - b.id; // Older ID first
+                return a.id - b.id; 
             });
             
-            // 2. Add a hidden "Start" anchor at value 0 so the curve naturally rises
+            let runningBalance = 0; // Initialize running balance
+            
+            // 2. Add a hidden "Start" anchor at value 0
             waveLabels.push('');
             waveData.push(0);
+            txAmounts.push(0);
             pointRadii.push(0);
             pointColors.push('transparent');
             isCredit.push(false);
 
-            // 3. Add the actual transactions
+            // 3. Add the actual transactions and calculate cumulative balance
             sortedTx.forEach(tx => {
                 const amt = parseFloat(tx.amount);
                 const isIncome = tx.type === 'income';
                 
+                if (isIncome) {
+                    runningBalance += amt;
+                } else {
+                    runningBalance -= amt;
+                }
+                
                 waveLabels.push(tx.date + ' ' + tx.category); 
-                waveData.push(amt);
-                pointRadii.push(6); // Real data point radius
-                pointColors.push(isIncome ? '#4edea3' : '#3B82F6'); // Green for Credit, Blue for Debit
+                waveData.push(runningBalance); // Plot the running balance
+                txAmounts.push(amt);           // Store actual tx amount for tooltip
+                pointRadii.push(6); 
+                pointColors.push(isIncome ? '#4edea3' : '#3B82F6'); 
                 isCredit.push(isIncome);
             });
 
-            // 4. Add a hidden "End" anchor at value 0 so the curve naturally sweeps down
+            // 4. Add a hidden "End" anchor level with the final balance
             waveLabels.push('');
-            waveData.push(0);
+            waveData.push(runningBalance);
+            txAmounts.push(0);
             pointRadii.push(0);
             pointColors.push('transparent');
             isCredit.push(false);
@@ -491,6 +526,7 @@ async function loadAnalytics() {
             // Fallback for zero transactions
             waveLabels = ["", "No Data", ""];
             waveData = [0, 0.1, 0];
+            txAmounts = [0, 0, 0];
             pointRadii = [0, 0, 0];
             pointColors = ['transparent', 'transparent', 'transparent'];
             isCredit = [false, false, false];
@@ -501,29 +537,27 @@ async function loadAnalytics() {
         fillGradient.addColorStop(0, 'rgba(6, 182, 212, 0.45)');
         fillGradient.addColorStop(1, 'rgba(6, 182, 212, 0.00)');
 
-        // Calculate width dynamically: 3 to 4 transactions visible per standard desktop screen
-        // approx 200px width per data point. Minimum width 600px.
         const dynamicWidth = Math.max(600, waveLabels.length * 200);
         barCtx.parentElement.style.minWidth = `${dynamicWidth}px`;
 
         let lineGradient = ctx.createLinearGradient(0, 0, dynamicWidth, 0);
-        lineGradient.addColorStop(0, '#06B6D4'); // Cyan
-        lineGradient.addColorStop(0.5, '#3B82F6'); // Blue
-        lineGradient.addColorStop(1, '#4edea3'); // Green
+        lineGradient.addColorStop(0, '#06B6D4'); 
+        lineGradient.addColorStop(0.5, '#3B82F6'); 
+        lineGradient.addColorStop(1, '#4edea3'); 
 
         barChartInstance = new Chart(barCtx, {
             type: 'line',
             data: {
                 labels: waveLabels,
                 datasets: [{
-                    label: 'Transaction Amount',
+                    label: 'Available Balance',
                     data: waveData,
                     borderColor: lineGradient,
                     borderWidth: 4,
                     backgroundColor: fillGradient,
                     fill: true,
-                    tension: 0.4, // Fluid cubic bezier curve
-                    pointBackgroundColor: pointColors, // Green for credit, Blue for debit
+                    tension: 0.4, 
+                    pointBackgroundColor: pointColors, 
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: pointRadii, 
@@ -538,22 +572,37 @@ async function loadAnalytics() {
                     tooltip: {
                         mode: 'index',
                         intersect: false,
-                        backgroundColor: 'rgba(30, 41, 59, 0.95)',
-                        titleColor: '#94a3b8',
+                        // Dynamically adjust tooltip background and border for readability in Light Mode
+                        backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                        borderWidth: 1,
+                        titleColor: isDark ? '#94a3b8' : '#64748b',
+                        // Set the footer (Balance) text color strictly based on the theme
+                        footerColor: isDark ? '#ffffff' : '#0b132b',
+                        footerMarginTop: 4,
+                        footerFont: { weight: 'normal', size: 13 },
+                        bodyFont: { size: 13 },
                         padding: 10,
                         callbacks: {
-                            // Custom Tooltip formatting for Credits (Green +) and Debits (Red -)
+                            // Colors ONLY the Transaction string (Green/Red)
+                            labelTextColor: function(context) {
+                                if (pointRadii[context.dataIndex] === 0) return 'transparent';
+                                return isCredit[context.dataIndex] ? '#4edea3' : '#ffb4ab';
+                            },
+                            // Returns the Transaction string
                             label: function(context) {
-                                if (pointRadii[context.dataIndex] === 0) return null; // Ignore anchor points
-                                
+                                if (pointRadii[context.dataIndex] === 0) return null; 
                                 const idx = context.dataIndex;
-                                const val = context.parsed.y.toLocaleString('en-IN', {maximumFractionDigits: 0});
+                                const txAmt = txAmounts[idx]; 
                                 const creditStatus = isCredit[idx];
-                                
-                                // Set Tooltip text color dynamically based on transaction type
-                                context.chart.tooltip.options.bodyColor = creditStatus ? '#4edea3' : '#ffb4ab';
-                                
-                                return (creditStatus ? '+' : '-') + '₹' + val;
+                                const sign = creditStatus ? '+' : '-';
+                                return `Tx: ${sign}₹${txAmt.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+                            },
+                            // Returns the Balance string in the footer (inherits footerColor)
+                            footer: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                if (!item || pointRadii[item.dataIndex] === 0) return null;
+                                return `Balance: ₹${item.parsed.y.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
                             }
                         }
                     }
@@ -583,7 +632,6 @@ async function loadAnalytics() {
             }
         });
         
-        // Auto-scroll horizontally to the far right so the newest transactions are visible immediately
         const wrapper = barCtx.parentElement.parentElement;
         if(wrapper) {
             setTimeout(() => { wrapper.scrollLeft = wrapper.scrollWidth; }, 100);
